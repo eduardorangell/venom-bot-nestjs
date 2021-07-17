@@ -1,9 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
 import * as venom from 'venom-bot';
+import * as fs from 'fs';
 
 @Injectable()
 export class AppService {
-  public cliente: any;
+  public exportedClient: any;
   constructor() {
     venom
       .create(
@@ -38,8 +39,8 @@ export class AppService {
       )
       .then((client) => {
         // Exporting client so external functions can use it
-        this.cliente = client;
-        this.start(this.cliente);
+        this.exportedClient = client;
+        this.start(this.exportedClient);
         // Answer for incoming calls
         client.onStateChange((state) => {
           Logger.log('State changed: ', state);
@@ -64,8 +65,9 @@ export class AppService {
       });
   }
 
+  /* Start Funcion to reply when get a 'Hi' */
   start(client: any) {
-    this.cliente.onMessage((message: any) => {
+    this.exportedClient.onMessage((message: any) => {
       if (message.body === 'Hi' && message.isGroupMsg === false) {
         client
           .sendText(message.from, 'Welcome Venom 🕷')
@@ -79,10 +81,10 @@ export class AppService {
     });
   }
 
-  /* Envia mensagem de texto */
-  async enviarMensagem(phone: string, text: string) {
-    return await this.cliente
-      .sendText(phone, text)
+  /* Send text message */
+  async sendTextMessage(phone: number, text: string) {
+    return await this.exportedClient
+      .sendText(`${phone}@c.us`, text)
       .then((result: any) => {
         console.log('Result: ', result);
         return result; //return object success
@@ -91,5 +93,66 @@ export class AppService {
         console.error('Error when sending: ', erro);
         return erro; //return object error
       });
+  }
+
+  /* Send image */
+  async sendImageMessage(
+    phone: number,
+    imageUrl: string,
+    fileName: string,
+    caption: string,
+  ) {
+    return await this.exportedClient
+      .sendImage(`${phone}@c.us`, imageUrl, fileName, caption)
+      .then((result: any) => {
+        Logger.log(`Result: ${result}`);
+        return result;
+      })
+      .catch((err: any) => {
+        Logger.log(`Error: ${err}`);
+        return err;
+      });
+  }
+
+  /* Send image in base64 format */
+  async sendBase64Image(phone: number, base64Image: string, fileName: string) {
+    return await this.exportedClient
+      .sendImageFromBase64(`${phone}@c.us`, base64Image, fileName)
+      .then((result: any) => {
+        Logger.log(`Result: ${result}`);
+        return result;
+      })
+      .catch((err: any) => {
+        Logger.log(`Error: ${err}`);
+        return err;
+      });
+  }
+
+  /* Function to check if this number is a valid whatsapp number  */
+  async isValidNumber(phone: number) {
+    return await this.exportedClient
+      .checkNumberStatus(`${phone}@c.us`)
+      .then((result: any) => {
+        Logger.log(`Result isValidNumber: ${JSON.stringify(result)}`);
+        return result;
+      })
+      .catch((erro: any) => {
+        Logger.log(`Result isValidNumber: ${JSON.stringify(erro)}`);
+        return erro;
+      });
+  }
+
+  /* Delete file */
+  async deleteFile(filePath: string) {
+    try {
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+        Logger.log(`File ${filePath} deleted`);
+      } else {
+        Logger.log(`File ${filePath} do not exist`);
+      }
+    } catch (error) {
+      Logger.log(error);
+    }
   }
 }
