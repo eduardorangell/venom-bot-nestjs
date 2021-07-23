@@ -27,19 +27,21 @@ export class AppController {
     /* returning the file to venom so the service can upload */
     const data = JSON.parse(body.body);
     const verified = await this.appService.isValidNumber(data.phone);
+    let result = '';
     if (verified.canReceiveMessage === false) {
       await this.appService.deleteFile(files[0]?.path);
-      return 'Invalid number';
+      result = 'Invalid number';
     }
 
-    const result = await this.appService.sendImageMessage(
-      data.phone,
-      files[0]?.path,
-      files[0]?.originalFilename,
-      data.caption,
-    );
-
-    await this.appService.deleteFile(files[0]?.path);
+    if (verified.canReceiveMessage === true) {
+      result = await this.appService.sendImageMessage(
+        data.phone,
+        files[0]?.path,
+        files[0]?.originalFilename,
+        data.caption,
+      );
+      await this.appService.deleteFile(files[0]?.path);
+    }
 
     return result;
   }
