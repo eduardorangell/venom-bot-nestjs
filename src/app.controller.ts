@@ -26,7 +26,9 @@ export class AppController {
   async sendImg(@UploadedFiles() files: any, @Body() body: any) {
     /* returning the file to venom so the service can upload */
     const data = JSON.parse(body.body);
-    const verified = await this.appService.isValidNumber(data.phone);
+    const verified = await this.appService.isValidNumber(
+      +data.phone?.replace(/\D/g, ''),
+    );
     let result = '';
     if (verified.canReceiveMessage === false) {
       await this.appService.deleteFile(files[0]?.path);
@@ -35,7 +37,7 @@ export class AppController {
 
     if (verified.canReceiveMessage === true) {
       result = await this.appService.sendImageMessage(
-        data.phone,
+        +data.phone?.replace(/\D/g, ''),
         files[0]?.path,
         files[0]?.originalFilename,
         data.caption,

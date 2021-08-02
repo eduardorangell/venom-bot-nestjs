@@ -27,9 +27,10 @@ export class AppService {
           useChrome: false, // If false will use Chromium instance
           debug: false, // Opens a debug session
           browserWS: '', // If u want to use browserWSEndpoint
-          browserArgs: ['--no-sandbox'], // Parameters to be added into the chrome browser instance
-          puppeteerOptions: {}, // Will be passed to puppeteer.launch
+          browserArgs: ['--no-sandbox', '--disable-setuid-sandbox'], // Parameters to be added into the chrome browser instance
+          puppeteerOptions: {},
           logQR: true, // Logs QR automatically in terminal
+          disableSpins: false,
           disableWelcome: true, // Will disable the welcoming message which appears in the beginning
           updatesLog: true, // Logs info updates automatically in terminal
           autoClose: 60000, // Automatically closes the venom-bot only when scanning the QR code (default 60 seconds, if you want to turn it off, assign 0 or false)
