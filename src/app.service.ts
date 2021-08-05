@@ -4,7 +4,7 @@ import * as fs from 'fs';
 
 @Injectable()
 export class AppService {
-  public exportedClient: any;
+  private exportedClient: any;
   constructor() {
     venom
       .create(
@@ -73,38 +73,38 @@ export class AppService {
         client
           .sendText(message.from, 'Welcome Venom 🕷')
           .then((result: any) => {
-            console.log('Result: ', result); //return object success
+            Logger.log('Result: ', result); //return object success
           })
           .catch((erro: any) => {
-            console.error('Error when sending: ', erro); //return object error
+            Logger.error('Error when sending: ', erro); //return object error
           });
       }
     });
   }
 
   /* Send text message */
-  async sendTextMessage(phone: number, text: string) {
+  async sendTextMessage(phone: string, text: string) {
     return await this.exportedClient
-      .sendText(`${phone}@c.us`, text)
+      .sendText(phone, text)
       .then((result: any) => {
-        console.log('Result: ', result);
+        Logger.log('Result: ', result);
         return result; //return object success
       })
-      .catch((erro: any) => {
-        console.error('Error when sending: ', erro);
-        return erro; //return object error
+      .catch((err: any) => {
+        Logger.error('Error when sending: ', err);
+        return err; //return object error
       });
   }
 
   /* Send image */
   async sendImageMessage(
-    phone: number,
+    phone: string,
     imageUrl: string,
-    fileName: string,
+    filename: string,
     caption: string,
   ) {
     return await this.exportedClient
-      .sendImage(`${phone}@c.us`, imageUrl, fileName, caption)
+      .sendImage(phone, imageUrl, filename, caption)
       .then((result: any) => {
         Logger.log(`Result: ${result}`);
         return result;
@@ -116,9 +116,9 @@ export class AppService {
   }
 
   /* Send image in base64 format */
-  async sendBase64Image(phone: number, base64Image: string, fileName: string) {
+  async sendBase64Image(phone: string, base64Image: string, filename: string) {
     return await this.exportedClient
-      .sendImageFromBase64(`${phone}@c.us`, base64Image, fileName)
+      .sendImageFromBase64(phone, base64Image, filename)
       .then((result: any) => {
         Logger.log(`Result: ${result}`);
         return result;
@@ -130,9 +130,9 @@ export class AppService {
   }
 
   /* Function to check if this number is a valid whatsapp number  */
-  async isValidNumber(phone: number) {
+  async isValidNumber(phone: string) {
     return await this.exportedClient
-      .checkNumberStatus(`${phone}@c.us`)
+      .checkNumberStatus(phone)
       .then((result: any) => {
         Logger.log(`Result isValidNumber: ${JSON.stringify(result)}`);
         return result;
