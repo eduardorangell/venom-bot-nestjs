@@ -4,6 +4,7 @@ import {
   Body,
   UploadedFiles,
   UseInterceptors,
+  Logger,
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { multerOptions } from './helpers/multer.config';
@@ -33,12 +34,13 @@ export class AppController {
       `${data.phone?.replace(/\D/g, '')}@c.us`,
     );
     let result = '';
-    if (verified.canReceiveMessage === 'false') {
+    Logger.log(verified);
+    if (verified.status === 404) {
       await this.appService.deleteFile(files[0]?.path);
       result = 'Invalid number';
     }
 
-    if (verified.canReceiveMessage === true) {
+    if (verified.status === 200) {
       result = await this.appService.sendImageMessage(
         `${data.phone?.replace(/\D/g, '')}@c.us`,
         files[0]?.path,
@@ -69,6 +71,6 @@ export class AppController {
     const result = await this.appService.isValidNumber(
       `${body.phone?.replace(/\D/g, '')}@c.us`,
     );
-    return result.canReceiveMessage;
+    return result;
   }
 }
