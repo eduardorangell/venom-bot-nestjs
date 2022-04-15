@@ -53,6 +53,34 @@ export class AppController {
     return result;
   }
 
+  @Post('send-file')
+  @UseInterceptors(FilesInterceptor('files', env().MAX_FILES, multerOptions))
+  async sendFile(@UploadedFiles() files: any, @Body() body: any) {
+    /* returning the file to venom so the service can upload */
+    const data = JSON.parse(body.body);
+    const verified = await this.appService.isValidNumber(
+      `${data.phone?.replace(/\D/g, '')}@c.us`,
+    );
+    let result = '';
+    Logger.log(verified);
+    if (verified.status === 404) {
+      await this.appService.deleteFile(files[0]?.path);
+      result = 'Invalid number';
+    }
+
+    if (verified.status === 200) {
+      result = await this.appService.sendAttachment(
+        `${data.phone?.replace(/\D/g, '')}@c.us`,
+        files[0]?.path,
+        files[0]?.originalFilename,
+        data.caption,
+      );
+      await this.appService.deleteFile(files[0]?.path);
+    }
+
+    return result;
+  }
+
   /* Post send image in base64 version */
   @Post('send-img-base-64')
   async sendImgBase64(
