@@ -36,3 +36,6 @@ lerna-debug.log*
 # Venom
 /tokens
 /uploads
+
+# Env file
+.env
