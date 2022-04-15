@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import * as venom from 'venom-bot';
 import * as fs from 'fs';
+import env from '@environments';
 
 @Injectable()
 export class AppService {
@@ -20,13 +21,13 @@ export class AppService {
           Logger.log('Session name: ', session);
         },
         {
-          multidevice: false,
-          folderNameToken: 'tokens', //folder name when saving tokens
-          mkdirFolderToken: '', //folder directory tokens, just inside the venom folder, example:  { mkdirFolderToken: '/node_modules', } //will save the tokens folder in the node_modules directory
-          headless: true, // Headless chrome
-          devtools: false, // Open devtools by default
-          useChrome: false, // If false will use Chromium instance
-          debug: false, // Opens a debug session
+          multidevice: env().MULTIDEVICE,
+          folderNameToken: env().FOLDER_TOKEN_NAME, //folder name when saving tokens
+          mkdirFolderToken: env().MKDIR_FOLDER_TOKEN, //folder directory tokens, just inside the venom folder, example:  { mkdirFolderToken: '/node_modules', } //will save the tokens folder in the node_modules directory
+          headless: env().HEADLESS, // Headless chrome
+          devtools: env().DEVTOOLS, // Open devtools by default
+          useChrome: env().USE_CHROME, // If false will use Chromium instance
+          debug: env().DEBUG, // Opens a debug session
           browserWS: '', // If u want to use browserWSEndpoint
           browserArgs: ['--no-sandbox', '--disable-setuid-sandbox'], // Parameters to be added into the chrome browser instance
           puppeteerOptions: {},
@@ -34,9 +35,9 @@ export class AppService {
           disableSpins: false,
           disableWelcome: true, // Will disable the welcoming message which appears in the beginning
           updatesLog: true, // Logs info updates automatically in terminal
-          autoClose: 60000, // Automatically closes the venom-bot only when scanning the QR code (default 60 seconds, if you want to turn it off, assign 0 or false)
-          createPathFileToken: true,
-          waitForLogin: true,
+          autoClose: env().AUTO_CLOSE, // Automatically closes the venom-bot only when scanning the QR code (default 60 seconds, if you want to turn it off, assign 0 or false)
+          createPathFileToken: env().CREATE_PATH_FILE_TOKEN, // Create path file token
+          waitForLogin: env().WAIT_FOR_LOGIN, // Wait for login
         },
       )
       .then((client) => {
@@ -88,7 +89,7 @@ export class AppService {
     return await this.exportedClient
       .sendText(phone, text)
       .then((result: any) => {
-        Logger.log('Result: ', result);
+        Logger.log('Result on sendTextMessage: ', result);
         return result; //return object success
       })
       .catch((err: any) => {
@@ -107,7 +108,7 @@ export class AppService {
     return await this.exportedClient
       .sendImage(phone, imageUrl, filename, caption)
       .then((result: any) => {
-        Logger.log(`Result: ${result}`);
+        Logger.log(`Result on sendImageMessage: ${JSON.stringify(result)}`);
         return result;
       })
       .catch((err: any) => {
@@ -121,7 +122,26 @@ export class AppService {
     return await this.exportedClient
       .sendImageFromBase64(phone, base64Image, filename)
       .then((result: any) => {
-        Logger.log(`Result: ${result}`);
+        Logger.log(`Result on sendBase64Image: ${JSON.stringify(result)}`);
+        return result;
+      })
+      .catch((err: any) => {
+        Logger.log(`Error: ${err}`);
+        return err;
+      });
+  }
+
+  /* Send attatchments like PDF */
+  async sendAttachment(
+    phone: string,
+    filePath: string,
+    filename: string,
+    caption: string,
+  ) {
+    return await this.exportedClient
+      .sendFile(phone, filePath, filename, caption)
+      .then((result: any) => {
+        Logger.log(`Result on sendAttachment: ${JSON.stringify(result)}`);
         return result;
       })
       .catch((err: any) => {
