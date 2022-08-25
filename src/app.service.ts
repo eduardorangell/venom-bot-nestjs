@@ -29,7 +29,11 @@ export class AppService {
           useChrome: env().USE_CHROME, // If false will use Chromium instance
           debug: env().DEBUG, // Opens a debug session
           browserWS: '', // If u want to use browserWSEndpoint
-          browserArgs: ['--no-sandbox', '--disable-setuid-sandbox'], // Parameters to be added into the chrome browser instance
+          browserArgs: [
+            '--no-sandbox',
+            '--disable-setuid-sandbox',
+            '--disable-dev-shm-usage',
+          ], // Parameters to be added into the chrome browser instance
           puppeteerOptions: {},
           logQR: true, // Logs QR automatically in terminal
           disableSpins: false,
