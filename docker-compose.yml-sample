@@ -1,0 +1,17 @@
+version: "3.9"
+services:
+  wapi-bot:
+    image: wapi:latest
+    container_name: wapi-bot
+    volumes:
+      - /root/wapi/tokens:/app/tokens
+    ports:
+      - 3000:3000
+    restart: unless-stopped
+    environment:
+      - MULTIDEVICE=true
+      - FOLDER_TOKEN_NAME=tokens
+      - HEADLESS=true
+      - USE_CHROME=true
+      - CREATE_PATH_FILE_TOKEN=true
+      - WAIT_FOR_LOGIN=true
